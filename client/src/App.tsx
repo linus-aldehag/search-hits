@@ -51,7 +51,7 @@ export default function App() {
                         <List.Root>
                                 {result ?
                                     result.map((item : Result) => (
-                                    <List.Item>
+                                    <List.Item key={item.input}>
                                         {item.input + ": " + item.hits + " hits"}
                                     </List.Item>))
                                 :
