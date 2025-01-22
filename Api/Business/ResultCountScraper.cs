@@ -18,20 +18,30 @@ public class ResultCountScraper(IConfiguration config, ILogger<ResultCountScrape
         
         foreach (var searchProvider in searchProviders)
         {
-            var url = string.Format(searchProvider.Url, input);
-            var client = SetupClient(searchProvider.Cookies);
-
-            var result = await client.GetAsync(url);
-        
-            if (!result.IsSuccessStatusCode)
+            try
             {
-                logger.LogError($"Failed to get search hits count for {url}");
-                continue;
+                var url = string.Format(searchProvider.Url, input);
+                var client = SetupHttpClient(searchProvider.Cookies);
+
+                var result = await client.GetAsync(url);
+
+                if (!result.IsSuccessStatusCode)
+                {
+                    logger.LogError($"Failed to get search hits count for {url}");
+                    continue;
+                }
+
+                var content = await result.Content.ReadAsStringAsync();
+                var numericValue = ScrapeValue(content, searchProvider);
+
+                logger.LogTrace($"Found {numericValue} search hits count for {input} using {url}");
+
+                totalSearchHitCount += numericValue;
             }
-        
-            var content = await result.Content.ReadAsStringAsync();
-            var numericValue = ScrapeValue(content, searchProvider);
-            totalSearchHitCount += numericValue;
+            catch (Exception e)
+            {
+                logger.LogError("Exception caught when scraping {}:\n\n{}\n\n\n{}", searchProvider.Url, e.Message, e.StackTrace);
+            }
         }
 
         return totalSearchHitCount;
@@ -43,8 +53,11 @@ public class ResultCountScraper(IConfiguration config, ILogger<ResultCountScrape
         document.LoadHtml(content);
                 
         var node = document.DocumentNode.SelectSingleNode(searchProvider.Path);
-            
-        var resultsString = node.InnerText ?? string.Empty;
+        
+        if (node?.InnerText == null)
+            return 0;
+        
+        var resultsString = node.InnerText;
         var match = Regex.Match(resultsString, searchProvider.Pattern);
         var value = match.Value;
             
@@ -53,10 +66,10 @@ public class ResultCountScraper(IConfiguration config, ILogger<ResultCountScrape
         return numericValue;
     }
 
-    private static HttpClient SetupClient(IList<CookieInfo> cookies)
+    private static HttpClient SetupHttpClient(IList<CookieInfo>? cookies)
     {
         var handler = new HttpClientHandler();
-        if (cookies.Count != 0)
+        if (cookies is { Count: > 0 })
         {
             handler.CookieContainer = new CookieContainer();
             foreach (var cookie in cookies)

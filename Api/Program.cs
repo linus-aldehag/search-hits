@@ -26,7 +26,7 @@ app.MapGet("{inputString}", (IResultScraper scraper, ILogger<Program> logger, st
         }
     }
     
-    Results.Ok(result);
+    return Results.Ok(result);
 });
 
 app.Run();
