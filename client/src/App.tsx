@@ -26,27 +26,33 @@ export default function App() {
         <Center padding={2}>
             <Flex direction="column">
                 <Flex justify="space-between">
-                  <Card.Root variant={"elevated"} minW={400}>
+                  <Card.Root variant={"elevated"} minW={400} margin={2}>
                       <Card.Header>Search Hit Counter</Card.Header>
                       <Card.Body>
                           <Input placeholder="Enter your search words"
                              value={input}
                              onChange={(e) => setInput(e.target.value)}
+                             onKeyDown={(e) => {
+                                 if (e.key == "Enter")
+                                     sendRequest();
+                             }}
                              disabled={loading} />
                       </Card.Body>
                       <Card.Footer justifyContent="flex-end">
-                          <Button onClick={(_) => sendRequest()} disabled={loading}>Send</Button>
+                          <Button onClick={(_) => sendRequest()} disabled={loading}>
+                              Submit
+                          </Button>
                       </Card.Footer>
                   </Card.Root>
                 </Flex>
-                <Card.Root>
+                <Card.Root variant={"elevated"} minW={400} margin={2}>
                     <Card.Header>Results:</Card.Header>
                     <Card.Body>{loading ? <Spinner /> :
                         <List.Root>
                                 {result ?
                                     result.map((item : Result) => (
                                     <List.Item>
-                                        {item.input + " - " + item.hits}
+                                        {item.input + ": " + item.hits + " hits"}
                                     </List.Item>))
                                 :
                                 "No results received"}
