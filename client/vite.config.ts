@@ -6,5 +6,12 @@ export default defineConfig({
     plugins: [plugin()],
     server: {
         port: 53697,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:5047',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, ''),
+            }
+        }
     }
 })
