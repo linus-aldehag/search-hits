@@ -1,15 +1,20 @@
 import { useState } from "react"
 import axios from "axios"
-import { Button, Card, Center, Flex, Input, Spinner } from "@chakra-ui/react"
+import { Button, Card, Center, Flex, Input, List, Spinner } from "@chakra-ui/react"
 
 export default function App() {
+    interface Result {
+        input: string,
+        hits: number
+    }
+    
     const [input, setInput] = useState("")
-    const [result, setResult] = useState("")
+    const [result, setResult] = useState<Result[]>([])
     const [loading, setLoading] = useState(false)
 
     const sendRequest = () => {
         setLoading(true);
-        setResult("");
+        setResult([]);
         
         axios.get("/api/" + input)
         .then(res => setResult(res.data))
@@ -36,7 +41,18 @@ export default function App() {
                 </Flex>
                 <Card.Root>
                     <Card.Header>Results:</Card.Header>
-                    <Card.Body>{loading ? <Spinner /> : result}</Card.Body>
+                    <Card.Body>{loading ? <Spinner /> :
+                        <List.Root>
+                                {result ?
+                                    result.map((item : Result) => (
+                                    <List.Item>
+                                        {item.input + " - " + item.hits}
+                                    </List.Item>))
+                                :
+                                "No results received"}
+                        </List.Root>
+                    }
+                    </Card.Body>
                 </Card.Root>
             </Flex>
         </Center> 
