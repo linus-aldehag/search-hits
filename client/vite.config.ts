@@ -5,10 +5,10 @@ import plugin from '@vitejs/plugin-react';
 export default defineConfig({
     plugins: [plugin()],
     server: {
-        port: 53697,
+        port: 80,
         proxy: {
             '/api': {
-                target: 'http://localhost:5047',
+                target: 'http://localhost:5000',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api/, ''),
             }
