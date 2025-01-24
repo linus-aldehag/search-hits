@@ -1,6 +1,6 @@
 import { useState } from "react"
 import axios from "axios"
-import { Button, Card, Center, Flex, Input, List, Spinner } from "@chakra-ui/react"
+import { Button, Card, Center, Flex, Input, Spinner } from "@chakra-ui/react"
 
 export default function App() {
     interface Result {
@@ -48,15 +48,21 @@ export default function App() {
                 <Card.Root variant={"elevated"} minW={400} margin={2}>
                     <Card.Header>Results:</Card.Header>
                     <Card.Body>{loading ? <Spinner /> :
-                        <List.Root>
-                                {result ?
-                                    result.map((item : Result) => (
-                                    <List.Item key={item.input}>
-                                        {item.input + ": " + item.hits + " hits"}
-                                    </List.Item>))
+                        <table>
+                            <tbody>
+                            {result ?
+                                result.map((item: Result) => (
+                                    <tr key={item.input}>
+                                        <td>{item.input}</td>
+                                        <td align={"right"}>{item.hits.toLocaleString()}</td>
+                                    </tr>
+                                ))
                                 :
-                                "No results received"}
-                        </List.Root>
+                                <tr>
+                                    <td>"No results received"</td>
+                                </tr>}
+                            </tbody>
+                        </table>
                     }
                     </Card.Body>
                 </Card.Root>

@@ -3,9 +3,9 @@ using SearchHitCount.Domain.Contracts;
 
 namespace SearchHitCount.Business;
 
-public class SearchHitService(IResultScraper scraper, ILogger<SearchHitService> logger) : ISearchHitService
+public class SearchHitService(IResultCountScraper scraper, ILogger<SearchHitService> logger) : ISearchHitService
 {
-    public List<SearchResult> PerformSearch(string inputString)
+    public async Task<List<SearchResult>> PerformSearchAsync(string inputString)
     {
         var inputs = inputString.Split(" ");
         var result = new List<SearchResult>();
@@ -14,7 +14,7 @@ public class SearchHitService(IResultScraper scraper, ILogger<SearchHitService> 
         {
             try
             {
-                var count = scraper.GetCount(input).Result;
+                var count = await scraper.GetCountAsync(input);
                 if (count.HasValue)
                     result.Add(new SearchResult(input, count.Value));
             }

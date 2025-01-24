@@ -1,14 +1,12 @@
-using System.Net;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
-using SearchHitCount.Domain;
 using SearchHitCount.Domain.Contracts;
 
 namespace SearchHitCount.Business;
 
-public class ResultCountScraper(IConfiguration config, ILogger<ResultCountScraper> logger) : IResultScraper
+public class ResultCountScraper(IConfiguration config, ILogger<ResultCountScraper> logger) : IResultCountScraper
 {
-    public async Task<int?> GetCount(string input)
+    public async Task<long?> GetCountAsync(string input)
     {
         var searchProviders = config.GetSection("SearchProviders").Get<SearchProvider[]>();
         if (searchProviders == null)
@@ -21,9 +19,8 @@ public class ResultCountScraper(IConfiguration config, ILogger<ResultCountScrape
             try
             {
                 var url = string.Format(searchProvider.Url, input);
-                var client = SetupHttpClient(searchProvider.Cookies);
 
-                var result = await client.GetAsync(url);
+                var result = await searchProvider.GetClient().GetAsync(url);
 
                 if (!result.IsSuccessStatusCode)
                 {
@@ -64,24 +61,5 @@ public class ResultCountScraper(IConfiguration config, ILogger<ResultCountScrape
         value = Regex.Replace(value, "[^0-9]", "");
         var numericValue = int.Parse(value);
         return numericValue;
-    }
-
-    private static HttpClient SetupHttpClient(IList<CookieInfo>? cookies)
-    {
-        var handler = new HttpClientHandler();
-        if (cookies is { Count: > 0 })
-        {
-            handler.CookieContainer = new CookieContainer();
-            foreach (var cookie in cookies)
-            {
-                handler.CookieContainer.Add(
-                    new Uri(cookie.Domain),
-                    new Cookie(cookie.Name, cookie.Value));
-            }
-        }
-                
-        var client = new HttpClient(handler);
-        client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0");
-        return client;
     }
 }
