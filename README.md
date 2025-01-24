@@ -9,7 +9,7 @@ For other environments (or to run manually step by step):
   - Build by heading into the **Api** directory and type **dotnet build**
   - Run by heading into the **Api\bin\Debug\net9.0** directory and type **dotnet api.dll**
 - Client:
-  - Install NPM packages by heading into the **client** direcory and type **npm install**
+  - Install NPM packages by heading into the **client** directory and type **npm install**
   - Run by heading into the **client** directory and type **npm run dev**
 
 The API runs on port 5000 and can be tested using the search string as its path, e.g. **http://localhost:5000/giraffe** or **http://localhost:5000/abundant%20excess**.
